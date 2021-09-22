@@ -16,5 +16,8 @@ class Data{
   }
 }
 
+var params = {}
+
 
 module.exports = Data
+module.exports = params
