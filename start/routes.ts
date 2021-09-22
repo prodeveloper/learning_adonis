@@ -29,18 +29,18 @@ Route.get('/', async () => {
 })
 
 
-Route. get('/name/inquiry/:account', ({params}) => {
+Route. get('/name/inquiry/:account', async({params}) => {
   try{
     var name_enquiry = new NameEnquiry()
-    params.account = decodeURIComponent(params.account)
-    name_enquiry.run(params)
-    var response = {'status':'success','results':params}
+    var results = await name_enquiry.run(params)
+    var response = {'status':'success','results':results}
     return response
 
   }
   catch(err){
     // TODO: sanitive code to make secure.
-    return  {'status':'failed', 'results': err.message}
+    console.log(err)
+    return  {'status':'failed', 'results': err}
   }
 })
 
@@ -48,17 +48,12 @@ Route.post('/account/registration/', async({request}) => {
 
   try{
     var params = request.all()
-    params.email = decodeURIComponent(params.email)
     var merchant_registration = new MerchantRegister()
     var results = await merchant_registration.run(params)
-    // results.then(results => {
-    //   console.log(results)
-    // })
     return {'status': 'success', 'results': results}
 
   }
   catch(err){
-    console.log(err)
     // TODO: sanitive code to make secure.
     return  {'status':'failed', 'results': err}
   }

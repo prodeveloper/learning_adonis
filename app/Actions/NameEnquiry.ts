@@ -1,25 +1,30 @@
-class NameEnquiry {
-  constructor(parameters) {
+import Database from '@ioc:Adonis/Lucid/Database'
 
-  }
+class NameEnquiry {
 
 /**
  * run
  */
-public run(params) {
-  this.extract_prefix(params)
+public async run(params) {
+  this.clean_up(params)
+  var results = this.find_account(params).then(results =>{
+    return results
+  }).catch(err=>{
+    throw "Account not found"
+  })
+  return results
 }
 
-private extract_prefix(params){
-  params.prefix = params.account.substring(0,3)
-
+private clean_up(params){
+  params.account = decodeURIComponent(params.account)
 }
-public name_enquiry(params){
 
-  this.extract_prefix(params)
-  params.stored_name = params
-}
-private find_name_in_db() {
+private async find_account(params){
+  const merchant= await Database
+      .from('merchants')
+      .where("account_no",params.account)
+      .firstOrFail()
+  return {merchant,params}
 
 }
 }

@@ -2,16 +2,21 @@ import Database from '@ioc:Adonis/Lucid/Database'
 
 class MerchantRegister {
   public async run(params){
-
+    this.clean_up(params)
     var validated = this.validate(params)
     return validated.then(results => {
-      console.log(results.params)
       this.generate_prefix(results.params)
       this.generate_account(results.params)
       this.generate_full_account(results.params)
-          //this.save_account()
+      this.save_account(results.params)
       return results
     })
+  }
+  private clean_up(params){
+        if ("email" in params) {
+          params.email = decodeURIComponent(params.email)
+        }
+
   }
 
   private generate_prefix(params){
@@ -32,13 +37,17 @@ class MerchantRegister {
     if (!("account_name" in params)){
       throw "Account Name Must be provided"
     }
-    if (!("email" in params)){
+    if (!("email" in params) || (params.email=="undefined")){
       throw "Email Must be provided"
     }
 
-    var merchants = await Database
+    const merchants= await Database
         .from('merchants')
+        .where("email",params.email)
         .exec()
+    if (merchants.length>0){
+      throw "Email Must be unique"
+    }
     return {merchants,params}
   }
 
@@ -54,6 +63,7 @@ class MerchantRegister {
         full_account_no:params.full_account_no
 
       })
+      .exec()
   }
 
 
